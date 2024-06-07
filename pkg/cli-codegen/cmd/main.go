@@ -24,73 +24,72 @@ __TODO:
 
 func main() {
 
-	originalFile, replaceFile := wrapp.GetFiles(core.ORIGINAL_FILE_DEFAULT_PATH + core.ORIGINAL_FILE_DEFAULT_NAME)
-	defer originalFile.Close()
-	defer replaceFile.Close()
+	original, replace := wrapp.GetFiles(core.ORIGINAL_FILE_DEFAULT_PATH + core.ORIGINAL_FILE_DEFAULT_NAME)
+	defer original.Close()
+	defer replace.Close()
 	sess := core.NewSession()
 	sess.InitOptions()
 
-	scanner := bufio.NewScanner(originalFile)
-	vReq := core.NewRequest()
+	scanner := bufio.NewScanner(original)
+	req := core.NewRequest()
 	for rowIdx := 0; scanner.Scan(); rowIdx++ {
 		prefixStartIndex := bytes.Index(scanner.Bytes(), core.PREFIX_BYTES)
-		errorRowMsg := " " + originalFile.Name() + ":" + strconv.Itoa(rowIdx)
+		errorRowMsg := " " + original.Name() + ":" + strconv.Itoa(rowIdx)
 
-		switch vReq.Method {
+		switch req.Method {
 		case "start":
-			vReq.ReadLine(scanner.Bytes())
+			req.ReadLine(scanner.Bytes())
 		case "stop":
-			vReq.Stop()
+			req.Stop()
 		case "insert":
-			vReq.InsertInto(replaceFile)
-			vReq.Reset()
+			req.InsertInto(replace)
+			req.Reset()
 		case "":
 		default:
-			log.Fatal(generr.Err("Unknown method: "+vReq.Method+errorRowMsg, nil))
+			log.Fatal(generr.Err("Unknown method: "+req.Method+errorRowMsg, nil))
 
 		}
-		// Write original row
+		// Write original rows, ignore rows with visualiser comment
 		if prefixStartIndex == -1 {
-			replaceFile.Write(scanner.Bytes())
-			replaceFile.Write([]byte("\n"))
+			replace.Write(scanner.Bytes())
+			replace.Write([]byte("\n"))
 			continue
 		}
 
 		queryStartindex := prefixStartIndex + len(core.PREFIX)
 		if len(scanner.Bytes()) <= queryStartindex {
-			log.Fatal(generr.Err("Visualiser comment exists, but does not contain method "+errorRowMsg, nil))
+			log.Fatal(generr.Err("Missing method at: "+errorRowMsg, nil))
 		}
 		query := scanner.Bytes()[queryStartindex:]
-
 		OptionsStartIndex := bytes.IndexByte(query, '?')
 		if OptionsStartIndex == -1 {
-			vReq.Method = string(query)
+			req.Method = string(query)
 			continue
 		}
-		vReq.Method = string(query[:OptionsStartIndex])
+		req.Method = string(query[:OptionsStartIndex])
 		tempParams := bytes.Split(query[OptionsStartIndex+1:], []byte("&"))
 		for _, v := range tempParams {
 
 			bytes := bytes.Split(v, []byte("="))
 			if len(bytes) != 2 {
-				log.Fatal(generr.Err("Incorrect query Option structure, must be key=value"+errorRowMsg, nil))
+				log.Fatal(generr.Err("Wrong query options, must be key=value"+errorRowMsg, nil))
 			}
-			vReq.Query = append(vReq.Query, core.MakeOption(string(bytes[0]), string(bytes[1])))
+			req.Query = append(req.Query, core.MakeOption(string(bytes[0]), string(bytes[1])))
 		}
 
 		//__TODO: parse Options if exists
-		fmt.Println("DEBUG_found method ", vReq.Method)
-		fmt.Println("DEBUG_found query ", vReq.Query)
+		fmt.Println("DEBUG_found method ", req.Method)
+		fmt.Println("DEBUG_found query ", req.Query)
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(generr.Err("Failed to read file", err))
 	}
-	replace(originalFile, replaceFile)
+	swapFiles(original, replace)
 }
 
-func replace(originalFile *os.File, replaceFile *os.File) {
-	os.Rename(originalFile.Name(), strings.TrimSuffix(originalFile.Name(), ".go")+"_old.go")
+func swapFiles(original *os.File, replace *os.File) {
+	os.Rename(original.Name(), strings.TrimSuffix(original.Name(), ".go")+"_old.go")
 
-	os.Rename(replaceFile.Name(), strings.TrimSuffix(replaceFile.Name(), "_replace"))
+	os.Rename(replace.Name(), strings.TrimSuffix(replace.Name(), "_replace"))
 
 }

@@ -22,21 +22,18 @@ func NewRequest() Request {
 	}
 }
 
-func (vReq *Request) ReadLine(in []byte) error {
-	tmpIn := slices.Clip(in)
-	tmpIn = append(tmpIn, '\n')
-	if slices.Contains(vReq.Query, REMAIN_COMMENTS) {
-
-	}
-	vReq.Data = append(vReq.Data, tmpIn)
+func (req *Request) ReadLine(in []byte) error {
+	tmp := slices.Clip(in)
+	tmp = append(tmp, '\n')
+	req.Data = append(req.Data, tmp)
 	return nil
 }
-func (vReq *Request) InsertInto(out *os.File) error {
+func (req *Request) InsertInto(out *os.File) error {
 	//__TODO
 	// this should seek in the data file for name ,
 	// then insert this exact data to the replace file
 	out.Write([]byte("\tfmt.Print(`"))
-	for _, row := range vReq.Data {
+	for _, row := range req.Data {
 		inserted, err := out.Write(row)
 		if inserted == 0 || err != nil {
 			return generr.Err("Failed to write to file", err)
@@ -45,9 +42,9 @@ func (vReq *Request) InsertInto(out *os.File) error {
 	out.Write([]byte("`)\n"))
 	return nil
 }
-func (vReq *Request) Reset() {
+func (req *Request) Reset() {
 	//__TODO
-	// reset should be call'd at the end of the vReq.stop()
+	// reset should be call'd at the end of the req.stop()
 	// at the time of writing this comment its call'd at the end of the insert(),
 	// which is drastically shirnkens variants of use to
 	// start > stop > insert,
@@ -55,10 +52,10 @@ func (vReq *Request) Reset() {
 	// and
 	// multiple start > stop call's in a row before any if any insert happens
 	tmp := NewRequest()
-	*vReq = tmp
+	*req = tmp
 }
-func (vReq *Request) Stop() {
-	vReq.Data = slices.Delete(vReq.Data, len(vReq.Data)-1, len(vReq.Data))
+func (req *Request) Stop() {
+	req.Data = slices.Delete(req.Data, len(req.Data)-1, len(req.Data))
 	//__TODO handle :start?OptionS&OptionS
 	// . . . handling . . .
 	//__TODO write .data to file

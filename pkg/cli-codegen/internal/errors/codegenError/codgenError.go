@@ -7,15 +7,15 @@ type CodegenError struct {
 	msg string
 }
 
-func (vce CodegenError) Error() string {
+func (generr CodegenError) Error() string {
 
-	if vce.err != nil {
-		return fmt.Sprintf("Error: %s \n Hint: %s\n", vce.err, vce.msg)
+	if generr.err != nil {
+		return fmt.Sprintf("Error: %s \n Hint: %s\n", generr.err, generr.msg)
 	}
-	if vce.msg == "" {
-		return fmt.Sprintf("Error: %s\n", vce.err)
+	if generr.msg == "" {
+		return fmt.Sprintf("Error: %s\n", generr.err)
 	}
-	return fmt.Sprintf("Hint: %s\n", vce.msg)
+	return fmt.Sprintf("Hint: %s\n", generr.msg)
 }
 func Err(msg string, err error) CodegenError {
 	return CodegenError{

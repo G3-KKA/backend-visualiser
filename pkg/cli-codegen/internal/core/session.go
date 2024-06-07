@@ -7,21 +7,21 @@ type Session struct {
 func NewSession() *Session {
 	return &Session{options: make([]map[option]OptionHandler, METHODS_COUNT)}
 }
-func (s *Session) InitOptions() error {
-	s.options[START] = initSTART()
-	s.options[STOP] = initSTOP()
-	s.options[INSERT] = initINSERT()
+func (sess *Session) InitOptions() error {
+	sess.options[START] = initSTART()
+	sess.options[STOP] = initSTOP()
+	sess.options[INSERT] = initINSERT()
 	return nil
 }
 func initSTART() map[option]OptionHandler {
-	tmpmap := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
-	return tmpmap
+	tmp := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
+	return tmp
 }
 func initSTOP() map[option]OptionHandler {
-	tmpmap := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
-	return tmpmap
+	tmp := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
+	return tmp
 }
 func initINSERT() map[option]OptionHandler {
-	tmpmap := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
-	return tmpmap
+	tmp := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
+	return tmp
 }
