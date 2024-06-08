@@ -1,11 +1,13 @@
 package core
 
+import "github.com/spf13/viper"
+
 type Session struct {
 	options []map[option]OptionHandler
 }
 
 func NewSession() *Session {
-	return &Session{options: make([]map[option]OptionHandler, METHODS_COUNT)}
+	return &Session{options: make([]map[option]OptionHandler, len(viper.GetStringSlice("methods")))}
 }
 func (sess *Session) InitOptions() error {
 	sess.options[START] = initSTART()
@@ -14,14 +16,14 @@ func (sess *Session) InitOptions() error {
 	return nil
 }
 func initSTART() map[option]OptionHandler {
-	tmp := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
+	tmp := make(map[option]OptionHandler, viper.GetInt("options_size"))
 	return tmp
 }
 func initSTOP() map[option]OptionHandler {
-	tmp := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
+	tmp := make(map[option]OptionHandler, viper.GetInt("options_size"))
 	return tmp
 }
 func initINSERT() map[option]OptionHandler {
-	tmp := make(map[option]OptionHandler, OPTIONS_POSSIBLE_MAP_DEFAULT_SIZE)
+	tmp := make(map[option]OptionHandler, viper.GetInt("options_size"))
 	return tmp
 }

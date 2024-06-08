@@ -18,6 +18,7 @@ func (generr CodegenError) Error() string {
 	return fmt.Sprintf("Hint: %s\n", generr.msg)
 }
 func Err(msg string, err error) CodegenError {
+	/* errors.Join() */
 	return CodegenError{
 		err: err,
 		msg: msg,

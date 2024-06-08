@@ -1,25 +1,28 @@
-package test
+package main
 
 import "fmt"
 
-//vdsdddisualize:start?name
-
+/* possible options are name=rand(),latest() */
+//visualize:start?name=mai&remainComments=true&addDebug=true
 func mai() {
 	//comment
 	ResultShouldBe()
 }
-
 func PrintThat() {
+	//visualize:stop
+	//visualize:insert?name=mai
+
+}
+func ResultShouldBe() {
 	fmt.Print(`func mai() {
 	//comment
 	ResultShouldBe()
 }
-`)
+func PrintThat() {`)
+}
 
-}
-func ResultShouldBe() {
-	fmt.Print(`func other() {
+/*func mai() {
 	//comment
-	fmt.Println("Hello, World!")
-}`)
+	ResultShouldBe()
 }
+func PrintThat() {*/
