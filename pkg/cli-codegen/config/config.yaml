@@ -1,3 +1,12 @@
 env: "dev"
-tmpdir: "./tmp"
-workdir: "../"
+validate_config: false
+logger:
+  level: "info"
+  encoding: "json"
+  output_paths: "stdout, /home/koslinxpc1/__ZZ_ALLCODE__/__ZZ_GO__/backend-visualiser/pkg/cli-codegen/cmd/tmp/log"
+  error_output_paths: "stderr"
+  encoder_config:
+    level_encoder: "lowercase"
+storage:
+  type: "file"
+  path: "./tmp/codegendata/"

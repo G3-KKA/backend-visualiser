@@ -1,0 +1,5 @@
+http_server:
+  address: "localhost"
+  port: "7730"
+  timeout: "10s"
+  idle_timeout: "10s"

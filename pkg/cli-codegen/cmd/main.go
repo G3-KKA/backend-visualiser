@@ -6,6 +6,7 @@ import (
 	generr "backend-visualiser/cli-codegen/internal/errors/codegenError"
 	"backend-visualiser/cli-codegen/internal/errors/current"
 	"backend-visualiser/cli-codegen/internal/lib/wrapp"
+	"backend-visualiser/cli-codegen/internal/logger"
 	"bufio"
 	"bytes"
 	"fmt"
@@ -19,6 +20,8 @@ import (
 
 func main() {
 	config.InitConfig()
+	logger := logger.InitLogger()
+	logger.Info("cli-codegen")
 	original, replace := wrapp.GetFiles(viper.GetString("file"))
 	defer original.Close()
 	defer replace.Close()
@@ -27,6 +30,10 @@ func main() {
 	/* builder := strings.Builder{} */
 	scanner := bufio.NewScanner(original)
 	req := core.NewRequest()
+	logger.Debug("Preparations succeeded")
+	logger.Sync()
+	defer logger.Sync()
+	panic("everything before this succeded")
 	for rowIdx := 0; scanner.Scan(); rowIdx++ {
 		startIndex := bytes.Index(scanner.Bytes(), core.PrefixBytes())
 		current.Phase = " " + original.Name() + ":" + strconv.Itoa(rowIdx)

@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
-/* possible options are name=rand(),latest() */
+/*  options to realize are name=rand(),latest() */
+
 //visualize:start?name=mai&remainComments=true&addDebug=true
 func mai() {
 	//comment
@@ -14,15 +18,16 @@ func PrintThat() {
 
 }
 func ResultShouldBe() {
-	fmt.Print(`func mai() {
-	//comment
-	ResultShouldBe()
-}
-func PrintThat() {`)
-}
+	//visualize:start?name=result
+	fmt.Println("hello")
+	log.Println("hello")
+	for _, v := range []int{1, 2, 3} {
+		fmt.Println(v)
+	}
+	//visualize:stop
+	//visualize:insert?name=result
+	//visualize:insert?name=result
+	//visualize:insert?name=mai
+	//visualize:insert?name=result
 
-/*func mai() {
-	//comment
-	ResultShouldBe()
 }
-func PrintThat() {*/

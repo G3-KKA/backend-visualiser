@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/pflag"
@@ -16,13 +15,29 @@ import (
 2. viper can map time not only to string but also to time.Duration
 */
 type Config struct {
-	Env         string `mapstructure:"env"`
-	StoragePath string `mapstructure:"storage_path"`
-	HTTPServer  struct {
-		Addres      string        `mapstructure:"addres"`
-		Timeout     time.Duration `mapstructure:"timeout"`
-		IdleTimeout string        `mapstructure:"idle_timeout"`
-	} `mapstructure:"http_server"`
+	Env            string `mapstructure:"env"`
+	ValidateConfig bool   `mapstructure:"validate_config"`
+	Logger         struct {
+		Level            string   `mapstructure:"level"`
+		Encoding         string   `mapstructure:"encoding"`
+		OutputPaths      []string `mapstructure:"output_paths"`
+		ErrorOutputPaths []string `mapstructure:"error_output_paths"`
+		EncoderConfig    struct {
+			LevelEncoder string `mapstructure:"level_encoder"`
+		} `mapstructure:"encoder_config"`
+	} `mapstructure:"logger"`
+	Storage struct {
+		Type string `mapstructure:"type"`
+		Path string `mapstructure:"path"`
+	} `mapstructure:"storage"`
+	/*
+		HTTPServer struct {
+			Addres      string        `mapstructure:"addres"`
+			Port        string        `mapstructure:"port"`
+			Timeout     time.Duration `mapstructure:"timeout"`
+			IdleTimeout string        `mapstructure:"idle_timeout"`
+		} `mapstructure:"http_server"`
+	*/
 }
 
 var C Config
@@ -51,6 +66,11 @@ func readConfig() {
 	if err != nil {
 		panic(err)
 	}
+	err = viper.Unmarshal(&C)
+	if err != nil {
+		panic(err)
+	}
+
 }
 func setConfigOptions() {
 	/* === Config file === */
@@ -72,6 +92,7 @@ func setConfigDefaults() {
 	viper.SetDefault("query_size", 8)
 	viper.SetDefault("data_rows_size", 16)
 	viper.SetDefault("methods", []string{"start", "stop", "insert"})
+	viper.SetDefault("validate_config", true)
 }
 
 func setConfigEnvAndCommandLine() {
@@ -91,6 +112,9 @@ func setConfigElse() {
 
 }
 func setConfigValidate() {
+	if !C.ValidateConfig {
+		return
+	}
 	if viper.GetString("file") == "" {
 		panic("file must be set")
 	}
