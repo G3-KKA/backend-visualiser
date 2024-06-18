@@ -9,14 +9,14 @@ import (
 )
 
 /*
-	hints
-
+Hints:
 1. use `mapstructure` as if it is a struct tag
-2. viper can map time not only to string but also to time.Duration
 */
 type Config struct {
-	Env            string `mapstructure:"env"`
-	ValidateConfig bool   `mapstructure:"validate_config"`
+	//USELESS
+	Env string `mapstructure:"env"`
+	//USELESS
+	ValidateConfig bool `mapstructure:"validate_config"`
 	Logger         struct {
 		Level            string   `mapstructure:"level"`
 		Encoding         string   `mapstructure:"encoding"`
@@ -30,9 +30,6 @@ type Config struct {
 
 var C Config
 
-// go run *.go --flagname 444 // flagname=444
-// go run *.go  //  flagname=1234
-// __TODO: Logic for config initialiser
 func InitConfig() {
 	setConfigOptions()
 	setConfigDefaults()
@@ -69,13 +66,10 @@ func setConfigOptions() {
 func setConfigDefaults() {
 	/*  === Default values === */
 	viper.SetDefault("workdir", "../")
+	//	/tmpdir now used to store
+	//		- .data files
+	//		- log file
 	viper.SetDefault("tmpdir", "./tmp")
-	/*
-		TODO:
-		tmp dir should be created in workdir or filedir
-		not in ../ from workdir
-	*/
-	viper.SetDefault("env", "release")
 	viper.SetDefault("options_size", 8)
 	viper.SetDefault("query_size", 8)
 	viper.SetDefault("data_rows_size", 16)
@@ -85,8 +79,6 @@ func setConfigDefaults() {
 
 func setConfigEnvAndCommandLine() {
 	/* === Environment variables === */
-	viper.MustBindEnv("GOVERSION", "GOVERSION")
-	viper.BindEnv("ZZGOSRC", "ZZGOSRC", "MYGOSRC", "ANYOTHERALIAS")
 	/* === Command line arguments === */
 	pflag.String("file", "", "File to codegen visualise")
 
@@ -100,11 +92,7 @@ func setConfigElse() {
 
 }
 func setConfigValidate() {
-	if !C.ValidateConfig {
-		return
-	}
 	if viper.GetString("file") == "" {
-		panic("file must be set")
+		panic("Missing Input File")
 	}
-
 }
