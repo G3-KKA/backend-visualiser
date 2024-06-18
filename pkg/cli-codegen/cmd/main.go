@@ -18,22 +18,30 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TODO: main needs a lot of work
 func main() {
+
 	config.InitConfig()
 	logger := logger.InitLogger()
+
 	logger.Info("cli-codegen")
+
 	original, replace := wrapp.GetFiles(viper.GetString("file"))
 	defer original.Close()
 	defer replace.Close()
+
 	sess := core.NewSession()
 	sess.InitOptions()
+
 	/* builder := strings.Builder{} */
-	scanner := bufio.NewScanner(original)
 	req := core.NewRequest()
+
 	logger.Debug("Preparations succeeded")
 	logger.Sync()
 	defer logger.Sync()
+
 	/* panic("everything before this succeded") */
+	scanner := bufio.NewScanner(original)
 	for rowIdx := 0; scanner.Scan(); rowIdx++ {
 		startIndex := bytes.Index(scanner.Bytes(), core.PrefixBytes())
 		current.Phase = " " + original.Name() + ":" + strconv.Itoa(rowIdx)
@@ -49,7 +57,7 @@ func main() {
 		default:
 			log.Fatal(generr.Err("Unknown method: "+req.Method+current.Phase, nil))
 		}
-		// Write original rows, ignore rows with visualiser comment
+		//	Write original rows, ignore rows with visualiser comment
 		if startIndex == -1 {
 			replace.Write(scanner.Bytes())
 			replace.Write([]byte("\n"))
@@ -60,7 +68,7 @@ func main() {
 		if len(scanner.Bytes()) <= queryindex {
 			log.Fatal(generr.Err("Missing method at: "+current.Phase, nil))
 		}
-		//__TODO: wrap to query logic
+		//	TODO: wrap to query logic
 		query := scanner.Bytes()[queryindex:]
 		optionsIndex := bytes.IndexByte(query, '?')
 		if optionsIndex == -1 {
@@ -74,7 +82,7 @@ func main() {
 			req.Query = append(req.Query, opt)
 		}
 
-		//__TODO: parse Options if exists
+		//	TODO: parse Options if exists
 		fmt.Println("DEBUG_found method ", req.Method)
 		fmt.Println("DEBUG_found query ", req.Query)
 	}

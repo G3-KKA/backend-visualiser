@@ -28,73 +28,86 @@ func NewRequest() Request {
 
 func (req *Request) ReadLine(in []byte) error {
 
+	//Making shure that we are working with brand new data after
+	//	append or other modification
+	//TODO: are we even care that we are modifying in []byte
 	tmp := slices.Clip(in)
+
+	//Creating brand new slice just
+	//	because scanner returns []byte without new line
+	//TODO: there should be a way to get []byte with new line
 	tmp = append(tmp, '\n')
 	req.Data = append(req.Data, tmp)
+
 	return nil
 }
 func (req *Request) InsertInto(out *os.File) error {
-	//__TODO
-	// this should seek in the data file for name ,
-	// then insert this exact data to the replace file
+
+	//Preparing request to be loaded in memory
 	req.setNameFromOptions()
 	req.ReadDataFile()
+
+	//WTF is this?
+	//TODO: Rewrite this in more readable way
 	lastRow := req.Data[len(req.Data)-1]
 	req.Data[len(req.Data)-1] = lastRow[:len(lastRow)-1]
+
+	//TODO: Hardcode, rewrite
 	out.Write([]byte("\tfmt.Print(`"))
+
+	//Writing to file
 	for _, row := range req.Data {
 		inserted, err := out.Write(row)
 		if inserted == 0 || err != nil {
 			return generr.Err("Failed to write to file", err)
 		}
 	}
+
+	//TODO: Hardcode, rewrite
 	out.Write([]byte("`)\n"))
+
 	req.Reset()
 	return nil
 }
 func (req *Request) Reset() {
-	//__TODO
-	// reset should be call'd at the end of the req.stop()
-	// at the time of writing this comment its call'd at the end of the insert(),
-	// which is drastically shirnkens variants of use to
-	// start > stop > insert,
-	// i want it to have ability of multiple insertions of the same data
-	// and
-	// multiple start > stop call's in a row before any if any insert happens
 	tmp := NewRequest()
 	*req = tmp
-	/* this makes a lot of allcotions, i might just default some of values? */
 }
 func (req *Request) Stop() {
+	//Preparing request to be written to file
 	req.deleteLastRow()
-
-	/* query handling , abadon later when */
 	req.setNameFromOptions()
+
+	//Creating data file and data folder if not exists yet
 	createDataFolder()
-	/*__TODO: there i should create symlink to tmp/__NAME__.data , for use in name=latest()*/
 	datafile := createDataFile(req.Name)
+
+	//Flush data to data file
+	//There should be a way to do this,
+	//	not calling Write on every row
 	for _, row := range req.Data {
 		datafile.Write(row)
 	}
-	defer datafile.Close()
-
-	//__TODO handle :start?OptionS&OptionS
-	// . . . handling . . .
-	//__TODO write .data to file
+	datafile.Close()
 	req.Reset()
 }
 func (req *Request) ReadDataFile() *os.File {
+
+	// Search for data file with name as in Request
+	// /tmp/snapshot.data
 	datafile, err := os.Open(viper.GetString("tmpdir") + "/" + req.Name + ".data")
 	if err != nil {
 		log.Fatal(generr.Err("Failed to open data file: "+viper.GetString("tmpdir")+"/"+req.Name+".data", err))
 	}
 	defer datafile.Close()
+
+	//TODO: bytes.Buffer
 	scanner := bufio.NewScanner(datafile)
 	for rowIdxidx := 0; scanner.Scan(); rowIdxidx++ {
 		req.Data = append(req.Data, slices.Concat(scanner.Bytes(), []byte("\n")))
 	}
-	return datafile
 
+	return datafile
 }
 
 /* ===  utilitary functions === */

@@ -7,6 +7,3 @@ logger:
   error_output_paths: "stderr"
   encoder_config:
     level_encoder: "lowercase"
-storage:
-  type: "file"
-  path: "./tmp/codegendata/"
