@@ -33,7 +33,7 @@ func main() {
 	logger.Debug("Preparations succeeded")
 	logger.Sync()
 	defer logger.Sync()
-	panic("everything before this succeded")
+	/* panic("everything before this succeded") */
 	for rowIdx := 0; scanner.Scan(); rowIdx++ {
 		startIndex := bytes.Index(scanner.Bytes(), core.PrefixBytes())
 		current.Phase = " " + original.Name() + ":" + strconv.Itoa(rowIdx)

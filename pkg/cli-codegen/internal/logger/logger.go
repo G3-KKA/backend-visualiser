@@ -1,9 +1,9 @@
 package logger
 
 import (
-	"backend-visualiser/cli-codegen/internal/config"
-	"fmt"
+	"os"
 
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -29,38 +29,51 @@ func InitLogger() *zap.SugaredLogger {
 	   	if err := json.Unmarshal(rawJSON, &cfg); err != nil {
 	   		panic(err)
 	   	} */
-	fmt.Println(config.C)
-	loglevel, err := zap.ParseAtomicLevel(config.C.Logger.Level)
+	/*
+		InitialFields:    map[string]interface{}{},
+		"initialFields": {"foo": "bar"},
+		just key:value that will be added to every log record
+	*/
+	/* Development:       false, */
+	/* DisableCaller:     false, */
+	/* DisableStacktrace: false, */
+	/* Sampling:          &zap.SamplingConfig{}, */
+	/* 	fmt.Println(config.C)
+	   	loglevel, err := zap.ParseAtomicLevel(config.C.Logger.Level)
+	   	if err != nil {
+	   		panic(err)
+	   	}
+
+	   	encodigConfig := zapcore.EncoderConfig{
+	   		MessageKey:  "message",
+	   		LevelKey:    "level",
+	   		EncodeLevel: levelEncoderFromConfig(config.C.Logger.EncoderConfig.LevelEncoder),
+	   	}
+	   	zap.NewProductionEncoderConfig()
+
+	   	cfg := zap.Config{
+	   		Level: loglevel,
+
+	   		Encoding:         config.C.Logger.Encoding,
+	   		EncoderConfig:    encodigConfig,
+	   		OutputPaths:      config.C.Logger.OutputPaths,
+	   		ErrorOutputPaths: config.C.Logger.ErrorOutputPaths,
+	   	}
+
+	   	logger, err := cfg.Build() */
+	enc := zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
+	ws, err := os.OpenFile(viper.GetString("tmpdir")+"/logs", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
 	}
 
-	encodigConfig := zapcore.EncoderConfig{
-		EncodeLevel: levelEncoderFromConfig(config.C.Logger.EncoderConfig.LevelEncoder),
-	}
-	cfg := zap.Config{
-		Level: loglevel,
-		/* Development:       false, */
-		/* DisableCaller:     false, */
-		/* DisableStacktrace: false, */
-		/* Sampling:          &zap.SamplingConfig{}, */
-		Encoding:         config.C.Logger.Encoding,
-		EncoderConfig:    encodigConfig,
-		OutputPaths:      config.C.Logger.OutputPaths,
-		ErrorOutputPaths: config.C.Logger.ErrorOutputPaths,
-		/*
-			InitialFields:    map[string]interface{}{},
-			"initialFields": {"foo": "bar"},
-			just key:value that will be added to every log record
-		*/
-	}
+	core := zapcore.NewCore(enc, ws, zapcore.InfoLevel)
 
-	logger, err := cfg.Build()
+	logger := zap.New(core)
+
 	sugerlogger := logger.Sugar()
-	if err != nil {
-		panic(err)
-	}
-	defer logger.Sync()
+
+	defer sugerlogger.Sync()
 
 	sugerlogger.Info("logger construction succeeded")
 	return sugerlogger
