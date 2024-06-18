@@ -26,18 +26,6 @@ type Config struct {
 			LevelEncoder string `mapstructure:"level_encoder"`
 		} `mapstructure:"encoder_config"`
 	} `mapstructure:"logger"`
-	Storage struct {
-		Type string `mapstructure:"type"`
-		Path string `mapstructure:"path"`
-	} `mapstructure:"storage"`
-	/*
-		HTTPServer struct {
-			Addres      string        `mapstructure:"addres"`
-			Port        string        `mapstructure:"port"`
-			Timeout     time.Duration `mapstructure:"timeout"`
-			IdleTimeout string        `mapstructure:"idle_timeout"`
-		} `mapstructure:"http_server"`
-	*/
 }
 
 var C Config
